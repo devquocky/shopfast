@@ -27,11 +27,12 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter'
 	implementation 'org.springframework.boot:spring-boot-devtools:2.7.16'
 	implementation 'org.springframework.boot:spring-boot-starter-web:2.7.16'
+	implementation 'org.springframework.boot:spring-boot-starter-validation:2.7.16'
 
-	// Add the Spring Data JPA starter dependency
+	implementation 'commons-io:commons-io:2.11.0'
+
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
-	// https://mvnrepository.com/artifact/org.postgresql/postgresql
 	implementation group: 'org.postgresql', name: 'postgresql', version: '42.6.0'
 
 	compileOnly 'org.projectlombok:lombok'
@@ -39,6 +40,11 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok'
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+	//logging
+	implementation 'org.slf4j:slf4j-api:1.7.25'
+	testImplementation 'org.slf4j:slf4j-log4j12:1.7.25'
+
 }
 
 tasks.named('test') {

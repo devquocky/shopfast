@@ -2,10 +2,8 @@ package personal.shopfast.dao.entity;
 
 import lombok.*;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -15,11 +13,11 @@ import javax.persistence.Table;
 @Builder
 
 @Entity
-@Table(name = "customer",schema = "customer")
+@Table(name = "customer", schema = "customer")
 public class Customer {
     @Id
     @Column(name = "customer_id")
-    private Long customerId;
+    private int customerId;
 
     @Column(name = "username")
     private String username;
@@ -35,4 +33,13 @@ public class Customer {
 
     @Column(name = "telephone")
     private String phoneNumber;
+
+    @Column(name = "created_at")
+    private LocalDateTime createTime;
+
+    @Column(name = "modified_at")
+    private LocalDateTime modifiedTime;
+
+    @Column(name = "is_deleted")
+    private boolean isDeleted;
 }

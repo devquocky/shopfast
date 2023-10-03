@@ -1,27 +1,49 @@
 package personal.shopfast.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import personal.shopfast.dao.entity.Customer;
+import org.springframework.web.bind.annotation.*;
 import personal.shopfast.dao.repository.CustomerRepository;
-
-import java.util.List;
+import personal.shopfast.dto.request.CustomerRequest;
+import personal.shopfast.service.CustomerService;
 
 @RestController
 @RequestMapping(path = "/customer")
-public class CustomerController {
+public class CustomerController extends AbstractController<CustomerService> {
 
+    Logger logger = LoggerFactory.getLogger(CustomerController.class);
     @Autowired
     CustomerRepository customerRepository;
 
     @GetMapping
-    public ResponseEntity<List<?>> testMethod() {
-        List<Customer> customers = customerRepository.findAll();
-
-        return ResponseEntity.ok(customers);
+    public ResponseEntity<?> getAllCustomer() {
+        return response(service.getAllCustomer());
     }
 
+    @GetMapping(path = "/{customerId}")
+    public ResponseEntity<?> getCustomerById(@PathVariable int customerId) {
+        return response(service.getCustomerById(customerId));
+    }
+
+//    @GetMapping
+//    public ResponseEntity<?> getCustomerByPhoneNumber(@RequestParam(name = "phone") String phoneNumber) {
+//        return response(service.getCustomerByPhoneNumber(phoneNumber));
+//    }
+
+    @PostMapping
+    public ResponseEntity<?> addNewCustomer(@RequestBody CustomerRequest customerRequest) {
+        return response(service.addNewCustomer(customerRequest));
+    }
+
+    @PutMapping(path = "/{customerId}")
+    public ResponseEntity<?> updateCustomerById(@RequestBody CustomerRequest customerRequest) {
+        return response(service.updateCustomer(customerRequest));
+    }
+
+    @DeleteMapping(path = "/{customerId}")
+    public ResponseEntity<?> deleteCustomerById(@PathVariable String username) {
+        return response(service.deleteCustomer(username));
+    }
 }
