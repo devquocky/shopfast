@@ -2,14 +2,18 @@ package personal.shopfast.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 import personal.shopfast.dao.entity.Customer;
 import personal.shopfast.dao.repository.CustomerRepository;
 import personal.shopfast.dto.request.CustomerRequest;
 import personal.shopfast.dto.response.CustomerResponse;
+import personal.shopfast.exception.DuplicateResourceException;
 import personal.shopfast.exception.ResourceNotFoundException;
 import personal.shopfast.service.AbstractService;
 import personal.shopfast.service.CustomerService;
+import personal.shopfast.util.ObjectMapper;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -23,14 +27,11 @@ public class CustomerServiceImpl extends AbstractService implements CustomerServ
     @Override
     public Optional<List<CustomerResponse>> getAllCustomer() {
         List<Customer> customers = customerRepository.findAll();
+
         List<CustomerResponse> customersResponse = customers.stream().map(driver ->
-                new personal.shopfast.dto.response.CustomerResponse(
-                        driver.getUsername(), driver.getFirstName(), driver.getLastName()
-                        , driver.getPhoneNumber()
-                        , driver.getCreateTime(), driver.getModifiedTime(),
-                        driver.isDeleted()
-                )
+                ObjectMapper.map(driver, CustomerResponse.class)
         ).collect(Collectors.toList());
+
         return Optional.of(customersResponse);
     }
 
@@ -43,36 +44,98 @@ public class CustomerServiceImpl extends AbstractService implements CustomerServ
             throw new ResourceNotFoundException("This customer not exist");
         }
 
-        CustomerResponse customerResponse = CustomerResponse.builder()
-                .username(foundCustomer.getUsername())
-                .firstName(foundCustomer.getFirstName())
-                .lastName(foundCustomer.getLastName())
-                .phoneNumber(foundCustomer.getPhoneNumber())
-                .createTime(foundCustomer.getCreateTime())
-                .modifiedTime(foundCustomer.getModifiedTime())
-                .build();
+        CustomerResponse customerResponse = ObjectMapper.map(foundCustomer, CustomerResponse.class);
 
         return Optional.of(customerResponse);
     }
 
     @Override
-    public Optional<List<CustomerResponse>> getCustomerByPhoneNumber(String phoneNumber) {
-        return Optional.empty();
+    public Optional<CustomerResponse> getCustomerByPhoneNumber(String phoneNumber) {
+        Customer foundCustomer = customerRepository.findByPhoneNumber(phoneNumber);
+
+        if (foundCustomer.isDeleted() || ObjectUtils.isEmpty(foundCustomer)) {
+            throw new ResourceNotFoundException("This customer not exist");
+        }
+
+        CustomerResponse customerResponse = ObjectMapper.map(foundCustomer, CustomerResponse.class);
+
+        return Optional.of(customerResponse);
+    }
+
+    @Override
+    public Optional<CustomerResponse> getCustomerByUsername(String username) {
+        Customer foundCustomer = customerRepository.findByUsername(username);
+
+        if (ObjectUtils.isEmpty(foundCustomer)) {
+            throw new ResourceNotFoundException("This customer not exist");
+        }
+        if (foundCustomer.isDeleted()) {
+            throw new ResourceNotFoundException("This customer not exist");
+        }
+
+        CustomerResponse customerResponse = ObjectMapper.map(foundCustomer, CustomerResponse.class);
+
+        return Optional.of(customerResponse);
     }
 
     @Override
     public Optional<CustomerResponse> addNewCustomer(CustomerRequest customerRequest) {
-        return Optional.empty();
+        Customer foundCustomerByUsername = customerRepository.findByUsername(customerRequest.getUsername());
+        if (!ObjectUtils.isEmpty(foundCustomerByUsername)) {
+            throw new DuplicateResourceException("This username is existed");
+        }
+
+        Customer foundCustomerByPhoneNumber = customerRepository.findByPhoneNumber(customerRequest.getPhoneNumber());
+        if (!ObjectUtils.isEmpty(foundCustomerByPhoneNumber)) {
+            throw new DuplicateResourceException("This phone number is used for another user");
+        }
+
+        Customer newCustomer = ObjectMapper.map(customerRequest, Customer.class);
+//        newCustomer.setCreateTime(LocalDateTime.now());
+
+        customerRepository.save(newCustomer);
+
+        return Optional.of(ObjectMapper.map(newCustomer, CustomerResponse.class));
     }
 
     @Override
     public Optional<CustomerResponse> updateCustomer(CustomerRequest customerRequest) {
-        return Optional.empty();
+        Customer foundCustomer = customerRepository.findByUsername(customerRequest.getUsername());
+
+        if (ObjectUtils.isEmpty(foundCustomer)) {
+            throw new ResourceNotFoundException("This customer not exist");
+        }
+
+        if (foundCustomer.isDeleted()) {
+            throw new ResourceNotFoundException("This customer not exist");
+        }
+
+        Customer newModifiedCustomer = ObjectMapper.map(customerRequest, Customer.class);
+        newModifiedCustomer.setCustomerId(foundCustomer.getCustomerId());
+        newModifiedCustomer.setModifiedTime(LocalDateTime.now());
+        customerRepository.save(newModifiedCustomer);
+
+        return Optional.of(ObjectMapper.map(foundCustomer, CustomerResponse.class));
     }
 
     @Override
     public Optional<CustomerResponse> deleteCustomer(String username) {
-        return Optional.empty();
+        Customer foundCustomer = customerRepository.findByUsername(username);
+
+        if (ObjectUtils.isEmpty(foundCustomer)) {
+            throw new ResourceNotFoundException("This customer not exist");
+        }
+
+        if (foundCustomer.isDeleted()) {
+            throw new ResourceNotFoundException("This customer not exist");
+        }
+
+        foundCustomer.setDeleted(true);
+        foundCustomer.setModifiedTime(LocalDateTime.now());
+
+        customerRepository.save(foundCustomer);
+
+        return Optional.of(ObjectMapper.map(foundCustomer, CustomerResponse.class));
     }
 
 }

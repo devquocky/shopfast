@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 public class CustomerResponse {
     private String username;
     private String firstName;
@@ -19,5 +18,4 @@ public class CustomerResponse {
     private String phoneNumber;
     private LocalDateTime createTime;
     private LocalDateTime modifiedTime;
-    private boolean isDeleted;
 }

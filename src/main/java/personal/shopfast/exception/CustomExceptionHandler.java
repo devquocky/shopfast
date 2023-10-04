@@ -12,7 +12,15 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler({ResourceNotFoundException.class})
     public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ResourceNotFoundException e) {
-        return new ResponseEntity<>(new ErrorResponse("000", "Can't found resource"), null, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(new ErrorResponse(
+                "000", "Can't found this resource"
+        ), null, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler({DuplicateResourceException.class})
+    public ResponseEntity<ErrorResponse> handleDuplicateResourceException(DuplicateResourceException e) {
+        return new ResponseEntity<>(new ErrorResponse(
+                "000", "This resource is existed"
+        ), null, HttpStatus.BAD_REQUEST);
+    }
 }

@@ -13,7 +13,9 @@ public interface CustomerService {
 
     Optional<CustomerResponse> getCustomerById(int customerId);
 
-    Optional<List<CustomerResponse>> getCustomerByPhoneNumber(String phoneNumber);
+    Optional<CustomerResponse> getCustomerByPhoneNumber(String phoneNumber);
+
+    Optional<CustomerResponse> getCustomerByUsername(String username);
 
     Optional<CustomerResponse> addNewCustomer(CustomerRequest customerRequest);
 

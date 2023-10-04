@@ -10,13 +10,13 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Setter
 @Getter
-@Builder
 
 @Entity
 @Table(name = "customer", schema = "customer")
 public class Customer {
     @Id
     @Column(name = "customer_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int customerId;
 
     @Column(name = "username")
@@ -35,11 +35,11 @@ public class Customer {
     private String phoneNumber;
 
     @Column(name = "created_at")
-    private LocalDateTime createTime;
+    private LocalDateTime createTime = LocalDateTime.now();
 
     @Column(name = "modified_at")
     private LocalDateTime modifiedTime;
 
     @Column(name = "is_deleted")
-    private boolean isDeleted;
+    private boolean isDeleted = false;
 }
