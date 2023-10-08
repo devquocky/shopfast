@@ -1,6 +1,7 @@
 package personal.shopfast.service;
 
 
+import org.springframework.data.domain.PageRequest;
 import personal.shopfast.dto.request.CustomerRequest;
 import personal.shopfast.dto.response.CustomerResponse;
 
@@ -9,13 +10,13 @@ import java.util.Optional;
 
 
 public interface CustomerService {
-    Optional<List<CustomerResponse>> getAllCustomer();
+    Optional<List<CustomerResponse>> getAllCustomer(PageRequest pageRequest);
 
     Optional<CustomerResponse> getCustomerById(int customerId);
 
-    Optional<CustomerResponse> getCustomerByPhoneNumber(String phoneNumber);
+    Optional<List<CustomerResponse>> getCustomersByPhoneNumber(String phoneNumber, PageRequest pageRequest);
 
-    Optional<CustomerResponse> getCustomerByUsername(String username);
+    Optional<List<CustomerResponse>> getCustomersByUsername(String username, PageRequest pageRequest);
 
     Optional<CustomerResponse> addNewCustomer(CustomerRequest customerRequest);
 

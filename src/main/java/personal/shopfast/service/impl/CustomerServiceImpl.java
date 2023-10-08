@@ -1,6 +1,7 @@
 package personal.shopfast.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 import personal.shopfast.dao.entity.Customer;
@@ -25,11 +26,11 @@ public class CustomerServiceImpl extends AbstractService implements CustomerServ
     CustomerRepository customerRepository;
 
     @Override
-    public Optional<List<CustomerResponse>> getAllCustomer() {
-        List<Customer> customers = customerRepository.findAll();
+    public Optional<List<CustomerResponse>> getAllCustomer(PageRequest pageRequest) {
+        List<Customer> customers = customerRepository.findByIsDeletedFalse(pageRequest);
 
-        List<CustomerResponse> customersResponse = customers.stream().map(driver ->
-                ObjectMapper.map(driver, CustomerResponse.class)
+        List<CustomerResponse> customersResponse = customers.stream().map(customer ->
+                ObjectMapper.map(customer, CustomerResponse.class)
         ).collect(Collectors.toList());
 
         return Optional.of(customersResponse);
@@ -50,49 +51,50 @@ public class CustomerServiceImpl extends AbstractService implements CustomerServ
     }
 
     @Override
-    public Optional<CustomerResponse> getCustomerByPhoneNumber(String phoneNumber) {
-        Customer foundCustomer = customerRepository.findByPhoneNumber(phoneNumber);
+    public Optional<List<CustomerResponse>> getCustomersByPhoneNumber(String phoneNumber, PageRequest pageRequest) {
+        List<Customer> foundCustomers = customerRepository.findByPhoneNumberContainsAndIsDeletedFalse(phoneNumber, pageRequest);
 
-        if (foundCustomer.isDeleted() || ObjectUtils.isEmpty(foundCustomer)) {
+        if (foundCustomers.isEmpty()) {
             throw new ResourceNotFoundException("This customer not exist");
         }
 
-        CustomerResponse customerResponse = ObjectMapper.map(foundCustomer, CustomerResponse.class);
+        List<CustomerResponse> customersResponse = foundCustomers.stream().map(customer ->
+                ObjectMapper.map(customer, CustomerResponse.class)
+        ).collect(Collectors.toList());
 
-        return Optional.of(customerResponse);
+        return Optional.of(customersResponse);
     }
 
     @Override
-    public Optional<CustomerResponse> getCustomerByUsername(String username) {
-        Customer foundCustomer = customerRepository.findByUsername(username);
+    public Optional<List<CustomerResponse>> getCustomersByUsername(String username, PageRequest pageRequest) {
+        List<Customer> foundCustomers = customerRepository.findByUsernameContainsAndIsDeletedFalse(username, pageRequest);
 
-        if (ObjectUtils.isEmpty(foundCustomer)) {
-            throw new ResourceNotFoundException("This customer not exist");
-        }
-        if (foundCustomer.isDeleted()) {
+        if (foundCustomers.isEmpty()) {
             throw new ResourceNotFoundException("This customer not exist");
         }
 
-        CustomerResponse customerResponse = ObjectMapper.map(foundCustomer, CustomerResponse.class);
+        List<CustomerResponse> customersResponse = foundCustomers.stream().map(customer ->
+                ObjectMapper.map(customer, CustomerResponse.class)
+        ).collect(Collectors.toList());
 
-        return Optional.of(customerResponse);
+        return Optional.of(customersResponse);
     }
 
     @Override
     public Optional<CustomerResponse> addNewCustomer(CustomerRequest customerRequest) {
-        Customer foundCustomerByUsername = customerRepository.findByUsername(customerRequest.getUsername());
+        Customer foundCustomerByUsername = customerRepository.findByUsernameAndIsDeletedFalse(customerRequest.getUsername());
         if (!ObjectUtils.isEmpty(foundCustomerByUsername)) {
             throw new DuplicateResourceException("This username is existed");
         }
 
-        Customer foundCustomerByPhoneNumber = customerRepository.findByPhoneNumber(customerRequest.getPhoneNumber());
+        Customer foundCustomerByPhoneNumber = customerRepository.findByPhoneNumberAndIsDeletedFalse(
+                customerRequest.getPhoneNumber());
+
         if (!ObjectUtils.isEmpty(foundCustomerByPhoneNumber)) {
             throw new DuplicateResourceException("This phone number is used for another user");
         }
 
         Customer newCustomer = ObjectMapper.map(customerRequest, Customer.class);
-//        newCustomer.setCreateTime(LocalDateTime.now());
-
         customerRepository.save(newCustomer);
 
         return Optional.of(ObjectMapper.map(newCustomer, CustomerResponse.class));
@@ -100,13 +102,9 @@ public class CustomerServiceImpl extends AbstractService implements CustomerServ
 
     @Override
     public Optional<CustomerResponse> updateCustomer(CustomerRequest customerRequest) {
-        Customer foundCustomer = customerRepository.findByUsername(customerRequest.getUsername());
+        Customer foundCustomer = customerRepository.findByUsernameAndIsDeletedFalse(customerRequest.getUsername());
 
         if (ObjectUtils.isEmpty(foundCustomer)) {
-            throw new ResourceNotFoundException("This customer not exist");
-        }
-
-        if (foundCustomer.isDeleted()) {
             throw new ResourceNotFoundException("This customer not exist");
         }
 
@@ -120,13 +118,9 @@ public class CustomerServiceImpl extends AbstractService implements CustomerServ
 
     @Override
     public Optional<CustomerResponse> deleteCustomer(String username) {
-        Customer foundCustomer = customerRepository.findByUsername(username);
+        Customer foundCustomer = customerRepository.findByUsernameAndIsDeletedFalse(username);
 
         if (ObjectUtils.isEmpty(foundCustomer)) {
-            throw new ResourceNotFoundException("This customer not exist");
-        }
-
-        if (foundCustomer.isDeleted()) {
             throw new ResourceNotFoundException("This customer not exist");
         }
 

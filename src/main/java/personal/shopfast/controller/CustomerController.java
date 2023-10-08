@@ -2,6 +2,7 @@ package personal.shopfast.controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -16,8 +17,9 @@ public class CustomerController extends AbstractController<CustomerService> {
     Logger logger = LoggerFactory.getLogger(CustomerController.class);
 
     @GetMapping
-    public ResponseEntity<?> getAllCustomer() {
-        return response(service.getAllCustomer());
+    public ResponseEntity<?> getAllCustomer(@RequestParam(name = "page", defaultValue = "0") int page,
+                                            @RequestParam(name = "size", defaultValue = "3") int size) {
+        return response(service.getAllCustomer(PageRequest.of(page, size)));
     }
 
     @GetMapping(path = "/by-id")
@@ -26,13 +28,17 @@ public class CustomerController extends AbstractController<CustomerService> {
     }
 
     @GetMapping(path = "/by-username")
-    public ResponseEntity<?> getCustomerByUsername(@RequestParam(name = "username") String username) {
-        return response(service.getCustomerByUsername(username));
+    public ResponseEntity<?> getCustomersByUsername(@RequestParam(name = "page", defaultValue = "0") int page,
+                                                    @RequestParam(name = "size", defaultValue = "3") int size,
+                                                    @RequestParam(name = "username") String username) {
+        return response(service.getCustomersByUsername(username, PageRequest.of(page, size)));
     }
 
     @GetMapping(path = "/by-phone")
-    public ResponseEntity<?> getCustomerByPhoneNumber(@RequestParam(name = "phone") String phoneNumber) {
-        return response(service.getCustomerByPhoneNumber(phoneNumber));
+    public ResponseEntity<?> getCustomerByPhoneNumber(@RequestParam(name = "page", defaultValue = "0") int page,
+                                                      @RequestParam(name = "size", defaultValue = "3") int size,
+                                                      @RequestParam(name = "phone") String phoneNumber) {
+        return response(service.getCustomersByPhoneNumber(phoneNumber, PageRequest.of(page, size)));
     }
 
     @PostMapping
