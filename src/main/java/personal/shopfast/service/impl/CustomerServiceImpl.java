@@ -9,6 +9,7 @@ import personal.shopfast.dao.repository.CustomerRepository;
 import personal.shopfast.dto.request.CustomerRequest;
 import personal.shopfast.dto.response.CustomerResponse;
 import personal.shopfast.exception.DuplicateResourceException;
+import personal.shopfast.exception.InvalidRequestException;
 import personal.shopfast.exception.ResourceNotFoundException;
 import personal.shopfast.service.AbstractService;
 import personal.shopfast.service.CustomerService;
@@ -82,15 +83,21 @@ public class CustomerServiceImpl extends AbstractService implements CustomerServ
 
     @Override
     public Optional<CustomerResponse> addNewCustomer(CustomerRequest customerRequest) {
-        Customer foundCustomerByUsername = customerRepository.findByUsernameAndIsDeletedFalse(customerRequest.getUsername());
-        if (!ObjectUtils.isEmpty(foundCustomerByUsername)) {
+        // Validate customer request
+        validateCustomerRequest(customerRequest);
+
+        List<Customer> foundCustomers = customerRepository.
+                findCustomerWithUsernameOrPhoneNumber(customerRequest.getUsername(), customerRequest.getPhoneNumber());
+
+        // Validate duplicate phone number
+        if (foundCustomers.stream().anyMatch(customer ->
+                customer.getUsername().equals(customerRequest.getUsername()))) {
             throw new DuplicateResourceException("This username is existed");
         }
 
-        Customer foundCustomerByPhoneNumber = customerRepository.findByPhoneNumberAndIsDeletedFalse(
-                customerRequest.getPhoneNumber());
-
-        if (!ObjectUtils.isEmpty(foundCustomerByPhoneNumber)) {
+        // Validate duplicate phone number
+        if (foundCustomers.stream().anyMatch(customer ->
+                customer.getPhoneNumber().equals(customerRequest.getPhoneNumber()))) {
             throw new DuplicateResourceException("This phone number is used for another user");
         }
 
@@ -102,6 +109,9 @@ public class CustomerServiceImpl extends AbstractService implements CustomerServ
 
     @Override
     public Optional<CustomerResponse> updateCustomer(CustomerRequest customerRequest) {
+        // Validate customer request
+        validateCustomerRequest(customerRequest);
+
         Customer foundCustomer = customerRepository.findByUsernameAndIsDeletedFalse(customerRequest.getUsername());
 
         if (ObjectUtils.isEmpty(foundCustomer)) {
@@ -130,6 +140,27 @@ public class CustomerServiceImpl extends AbstractService implements CustomerServ
         customerRepository.save(foundCustomer);
 
         return Optional.of(ObjectMapper.map(foundCustomer, CustomerResponse.class));
+    }
+
+    public void validateCustomerRequest(CustomerRequest customerRequest) {
+        String message = objectValidator.validateRequestAndReturnMessage(customerRequest);
+
+        if (!ObjectUtils.isEmpty(message)) {
+            throw new InvalidRequestException(message);
+        }
+
+        if (customerRequest.getUsername().isEmpty()) {
+            throw new InvalidRequestException("Empty Username");
+        }
+
+        if (ObjectUtils.isEmpty(validatePhoneNumber(customerRequest.getPhoneNumber()))) {
+            throw new InvalidRequestException("Invalid phone number");
+        }
+    }
+
+    public String validatePhoneNumber(String phoneNumber) {
+        if (phoneNumber.isEmpty()) throw new ResourceNotFoundException("Empty Phone Number");
+        return phoneNumber.matches("(84|0[3|5|7|8|9])+([0-9]{8})\\b") ? phoneNumber : "";
     }
 
 }
