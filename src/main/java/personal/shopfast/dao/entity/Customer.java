@@ -1,6 +1,7 @@
 package personal.shopfast.dao.entity;
 
 import lombok.*;
+import personal.shopfast.util.annotation.PhoneNumber;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;

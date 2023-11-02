@@ -1,4 +1,4 @@
-package personal.shopfast.dao.entity;
+package personal.shopfast.util.annotation;
 
 import javax.validation.Constraint;
 import java.lang.annotation.*;

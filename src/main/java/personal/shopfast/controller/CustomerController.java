@@ -7,7 +7,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import personal.shopfast.dao.entity.PhoneNumber;
+import personal.shopfast.util.annotation.PhoneNumber;
 import personal.shopfast.dto.request.CustomerRequest;
 import personal.shopfast.service.CustomerService;
 

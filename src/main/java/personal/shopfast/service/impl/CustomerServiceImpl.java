@@ -20,6 +20,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static org.springframework.data.jpa.domain.Specification.*;
+import static personal.shopfast.dao.specification.CustomerSpecification.*;
+
 @Service
 public class CustomerServiceImpl extends AbstractService implements CustomerService {
 
@@ -28,35 +31,30 @@ public class CustomerServiceImpl extends AbstractService implements CustomerServ
 
     @Override
     public Optional<List<CustomerResponse>> getAllCustomer(PageRequest pageRequest) {
-        List<Customer> customers = customerRepository.findByIsDeletedFalse(pageRequest);
-
-        List<CustomerResponse> customersResponse = customers.stream().map(customer ->
-                ObjectMapper.map(customer, CustomerResponse.class)
-        ).collect(Collectors.toList());
-
-        return Optional.of(customersResponse);
+        return Optional.of(customerRepository.findAll(where(isActive()), pageRequest)
+                .toList().stream().map(customer ->
+                        ObjectMapper.map(customer, CustomerResponse.class)
+                ).collect(Collectors.toList())
+        );
     }
 
     @Override
     public Optional<CustomerResponse> getCustomerById(int customerId) {
-        Customer foundCustomer = customerRepository.findById(customerId).orElseThrow(() ->
-                new ResourceNotFoundException("This customer not exist"));
-
-        if (foundCustomer.isDeleted()) {
-            throw new ResourceNotFoundException("This customer not exist");
-        }
-
-        CustomerResponse customerResponse = ObjectMapper.map(foundCustomer, CustomerResponse.class);
-
-        return Optional.of(customerResponse);
+        return customerRepository.findOne(where(hasId(customerId)).and(isActive()))
+                .map(customer -> {
+                    CustomerResponse customerResponse = ObjectMapper.map(customer, CustomerResponse.class);
+                    return Optional.of(customerResponse);
+                })
+                .orElseThrow(() -> new ResourceNotFoundException("This customer does not exist"));
     }
 
     @Override
     public Optional<List<CustomerResponse>> getCustomersByPhoneNumber(String phoneNumber, PageRequest pageRequest) {
-        List<Customer> foundCustomers = customerRepository.findByPhoneNumberContainsAndIsDeletedFalse(phoneNumber, pageRequest);
+        List<Customer> foundCustomers = customerRepository.
+                findAll(where(isActive()).and(likePhoneNumber(phoneNumber)), pageRequest).toList();
 
         if (foundCustomers.isEmpty()) {
-            throw new ResourceNotFoundException("This customer not exist");
+            throw new ResourceNotFoundException("This customer does not exist");
         }
 
         List<CustomerResponse> customersResponse = foundCustomers.stream().map(customer ->
@@ -68,10 +66,11 @@ public class CustomerServiceImpl extends AbstractService implements CustomerServ
 
     @Override
     public Optional<List<CustomerResponse>> getCustomersByUsername(String username, PageRequest pageRequest) {
-        List<Customer> foundCustomers = customerRepository.findByUsernameContainsAndIsDeletedFalse(username, pageRequest);
+        List<Customer> foundCustomers = customerRepository.
+                findAll(where(isActive()).and(likeUsername(username)), pageRequest).toList();
 
         if (foundCustomers.isEmpty()) {
-            throw new ResourceNotFoundException("This customer not exist");
+            throw new ResourceNotFoundException("This customer does not exist");
         }
 
         List<CustomerResponse> customersResponse = foundCustomers.stream().map(customer ->
@@ -86,8 +85,9 @@ public class CustomerServiceImpl extends AbstractService implements CustomerServ
         // Validate customer request
         validateCustomerRequest(customerRequest);
 
-        List<Customer> foundCustomers = customerRepository.
-                findCustomerWithUsernameOrPhoneNumber(customerRequest.getUsername(), customerRequest.getPhoneNumber());
+        List<Customer> foundCustomers = customerRepository.findAll(
+                where(likeUsername(customerRequest.getUsername()))
+                        .and(likePhoneNumber(customerRequest.getPhoneNumber())));
 
         // Validate duplicate phone number
         if (foundCustomers.stream().anyMatch(customer ->
@@ -112,11 +112,11 @@ public class CustomerServiceImpl extends AbstractService implements CustomerServ
         // Validate customer request
         validateCustomerRequest(customerRequest);
 
-        Customer foundCustomer = customerRepository.findByUsernameAndIsDeletedFalse(customerRequest.getUsername());
-
-        if (ObjectUtils.isEmpty(foundCustomer)) {
-            throw new ResourceNotFoundException("This customer not exist");
-        }
+        Customer foundCustomer = customerRepository.findOne(where(isActive())
+                        .and(hasUsername(customerRequest.getUsername())))
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("This customer does not exist")
+                );
 
         Customer newModifiedCustomer = ObjectMapper.map(customerRequest, Customer.class);
         newModifiedCustomer.setCustomerId(foundCustomer.getCustomerId());
@@ -128,11 +128,10 @@ public class CustomerServiceImpl extends AbstractService implements CustomerServ
 
     @Override
     public Optional<CustomerResponse> deleteCustomer(String username) {
-        Customer foundCustomer = customerRepository.findByUsernameAndIsDeletedFalse(username);
-
-        if (ObjectUtils.isEmpty(foundCustomer)) {
-            throw new ResourceNotFoundException("This customer not exist");
-        }
+        Customer foundCustomer = customerRepository.findOne(where(isActive()).and(hasUsername(username)))
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("This customer does not exist")
+                );
 
         foundCustomer.setDeleted(true);
         foundCustomer.setModifiedTime(LocalDateTime.now());
