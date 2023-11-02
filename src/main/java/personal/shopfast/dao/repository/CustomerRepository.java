@@ -2,6 +2,7 @@ package personal.shopfast.dao.repository;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import personal.shopfast.dao.entity.Customer;
@@ -9,7 +10,7 @@ import personal.shopfast.dao.entity.Customer;
 import java.util.List;
 
 @Repository
-public interface CustomerRepository extends JpaRepository<Customer, Integer> {
+public interface CustomerRepository extends JpaRepository<Customer, Integer>, JpaSpecificationExecutor<Customer> {
 
     @Query(value = "SELECT * FROM customer.customer c WHERE c.username LIKE ?1 OR c.telephone LIKE ?2", nativeQuery = true)
     List<Customer> findCustomerWithUsernameOrPhoneNumber(String username, String phoneNumber);
