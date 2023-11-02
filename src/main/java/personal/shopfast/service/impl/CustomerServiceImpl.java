@@ -153,14 +153,7 @@ public class CustomerServiceImpl extends AbstractService implements CustomerServ
             throw new InvalidRequestException("Empty Username");
         }
 
-        if (ObjectUtils.isEmpty(validatePhoneNumber(customerRequest.getPhoneNumber()))) {
-            throw new InvalidRequestException("Invalid phone number");
-        }
     }
 
-    public String validatePhoneNumber(String phoneNumber) {
-        if (phoneNumber.isEmpty()) throw new ResourceNotFoundException("Empty Phone Number");
-        return phoneNumber.matches("(84|0[3|5|7|8|9])+([0-9]{8})\\b") ? phoneNumber : "";
-    }
 
 }

@@ -32,6 +32,7 @@ public class Customer {
     private String lastName;
 
     @Column(name = "telephone")
+    @PhoneNumber
     private String phoneNumber;
 
     @Column(name = "created_at")

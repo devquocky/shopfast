@@ -7,9 +7,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import personal.shopfast.dao.entity.PhoneNumber;
 import personal.shopfast.dto.request.CustomerRequest;
 import personal.shopfast.service.CustomerService;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 
 @RestController
@@ -47,20 +49,19 @@ public class CustomerController extends AbstractController<CustomerService> {
     public ResponseEntity<?> getCustomerByPhoneNumber(@RequestParam(name = "page", defaultValue = "0") int page,
                                                       @RequestParam(name = "size", defaultValue = "3") int size,
                                                       @RequestParam(name = "phone")
-                                                      @NotBlank(message = "Param ?phone cannot be empty")
-                                                      String phoneNumber,
+                                                      @PhoneNumber String phoneNumber,
                                                       @RequestParam(name = "sort", defaultValue = "customerId,desc") String[] sort) {
         Sort sortOption = createSortOption(sort);
         return response(service.getCustomersByPhoneNumber(phoneNumber, PageRequest.of(page, size, sortOption)));
     }
 
     @PostMapping
-    public ResponseEntity<?> addNewCustomer(@RequestBody CustomerRequest customerRequest) {
+    public ResponseEntity<?> addNewCustomer(@Valid @RequestBody CustomerRequest customerRequest) {
         return response(service.addNewCustomer(customerRequest));
     }
 
     @PutMapping
-    public ResponseEntity<?> updateCustomerById(@RequestBody CustomerRequest customerRequest) {
+    public ResponseEntity<?> updateCustomerById(@Valid @RequestBody CustomerRequest customerRequest) {
         return response(service.updateCustomer(customerRequest));
     }
 
