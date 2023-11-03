@@ -26,7 +26,7 @@ public abstract class Customer_ {
     public static final String PASSWORD = "password";
     public static final String FIRSTNAME = "firstname";
     public static final String LASTNAME = "lastname";
-    public static final String PHONE = "phoneNumber";
+    public static final String PHONENUMBER = "phoneNumber";
     public static final String CREATE_TIME = "createdTime";
     public static final String MODIFIED_TIME = "modifiedTime";
     public static final String DELETED = "isDeleted";

@@ -1,9 +1,7 @@
-FROM openjdk:8
-
-LABEL authors="flagnguyen"
+FROM openjdk:11
 
 # Set environment variables
-ENV APP_HOME=/src
+ENV APP_HOME=/app
 ENV APP_JAR=shopfast-23.26.0.jar
 
 # Create the application directory

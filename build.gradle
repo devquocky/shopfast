@@ -8,7 +8,7 @@ group = 'personal'
 version = '23.26.0'
 
 java {
-    sourceCompatibility = '1.8'
+    sourceCompatibility = "VERSION_1_9"
 }
 
 configurations {
@@ -52,8 +52,8 @@ dependencies {
 
     //Storage
 //    implementation 'com.jlefebure:spring-boot-starter-minio:1.10'
-    implementation 'io.minio:minio:8.5.6'
-    implementation 'commons-fileupload:commons-fileupload:1.5'
+//    implementation 'io.minio:minio:8.5.6'
+//    implementation 'commons-fileupload:commons-fileupload:1.5'
 
 
 }

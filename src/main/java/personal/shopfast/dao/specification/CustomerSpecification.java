@@ -23,7 +23,7 @@ public final class CustomerSpecification {
     }
 
     public static Specification<Customer> likePhoneNumber(String phoneNumber) {
-        return (root, query, cb) -> cb.like(root.get(Customer_.PHONE), "%" + phoneNumber + "%");
+        return (root, query, cb) -> cb.like(root.get(Customer_.PHONENUMBER), "%" + phoneNumber + "%");
     }
 
     public static Specification<Customer> isActive() {

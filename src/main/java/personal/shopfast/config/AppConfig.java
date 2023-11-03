@@ -1,7 +1,5 @@
 package personal.shopfast.config;
 
-import io.minio.MinioClient;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,25 +13,25 @@ import java.util.TimeZone;
 @Configuration
 public class AppConfig {
 
-    @Value("${minio.access.name}")
-    String accessKey;
-    @Value("${minio.access.secret}")
-    String accessSecret;
-    @Value("${minio.url}")
-    String minioUrl;
-
-    @Bean
-    public MinioClient generateMinioClient() {
-        try {
-            MinioClient client = new MinioClient.Builder()
-                    .endpoint(minioUrl)
-                    .credentials(accessKey, accessSecret)
-                    .build();
-            return client;
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
-        }
-    }
+//    @Value("${minio.access.name}")
+//    String accessKey;
+//    @Value("${minio.access.secret}")
+//    String accessSecret;
+//    @Value("${minio.url}")
+//    String minioUrl;
+//
+//    @Bean
+//    public MinioClient generateMinioClient() {
+//        try {
+//            MinioClient client = new MinioClient.Builder()
+//                    .endpoint(minioUrl)
+//                    .credentials(accessKey, accessSecret)
+//                    .build();
+//            return client;
+//        } catch (Exception e) {
+//            throw new RuntimeException(e.getMessage());
+//        }
+//    }
 
 
     @PostConstruct
