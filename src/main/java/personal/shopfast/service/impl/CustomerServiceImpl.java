@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.springframework.data.jpa.domain.Specification.*;
+import static org.springframework.data.jpa.domain.Specification.where;
 import static personal.shopfast.dao.specification.CustomerSpecification.*;
 
 @Service
@@ -87,7 +87,7 @@ public class CustomerServiceImpl extends AbstractService implements CustomerServ
 
         List<Customer> foundCustomers = customerRepository.findAll(
                 where(likeUsername(customerRequest.getUsername()))
-                        .and(likePhoneNumber(customerRequest.getPhoneNumber())));
+                        .or(likePhoneNumber(customerRequest.getPhoneNumber())));
 
         // Validate duplicate phone number
         if (foundCustomers.stream().anyMatch(customer ->

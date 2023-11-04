@@ -7,7 +7,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import personal.shopfast.util.annotation.PhoneNumber;
 import personal.shopfast.dto.request.CustomerRequest;
 import personal.shopfast.service.CustomerService;
 
@@ -26,7 +25,9 @@ public class CustomerController extends AbstractController<CustomerService> {
                                             @RequestParam(name = "size", defaultValue = "3") int size,
                                             @RequestParam(name = "sort", defaultValue = "customerId,desc") String[] sort) {
         Sort sortOption = createSortOption(sort);
-        return response(service.getAllCustomer(PageRequest.of(page, size, sortOption)));
+        return responsePage(
+                page, size,
+                service.getAllCustomer(PageRequest.of(page, size, sortOption)));
     }
 
     @GetMapping(path = "/by-id")
@@ -42,17 +43,21 @@ public class CustomerController extends AbstractController<CustomerService> {
                                                     String username,
                                                     @RequestParam(name = "sort", defaultValue = "customerId,desc") String[] sort) {
         Sort sortOption = createSortOption(sort);
-        return response(service.getCustomersByUsername(username, PageRequest.of(page, size, sortOption)));
+        return responsePage(page, size,
+                service.getCustomersByUsername(username, PageRequest.of(page, size, sortOption)));
     }
 
     @GetMapping(path = "/by-phone")
     public ResponseEntity<?> getCustomerByPhoneNumber(@RequestParam(name = "page", defaultValue = "0") int page,
                                                       @RequestParam(name = "size", defaultValue = "3") int size,
                                                       @RequestParam(name = "phone")
-                                                      @PhoneNumber String phoneNumber,
-                                                      @RequestParam(name = "sort", defaultValue = "customerId,desc") String[] sort) {
+                                                      @NotBlank(message = "Param ?phone cannot be empty")
+                                                      String phoneNumber,
+                                                      @RequestParam(name = "sort", defaultValue = "customerId,desc")
+                                                      String[] sort) {
         Sort sortOption = createSortOption(sort);
-        return response(service.getCustomersByPhoneNumber(phoneNumber, PageRequest.of(page, size, sortOption)));
+        return responsePage(page, size,
+                service.getCustomersByPhoneNumber(phoneNumber, PageRequest.of(page, size, sortOption)));
     }
 
     @PostMapping

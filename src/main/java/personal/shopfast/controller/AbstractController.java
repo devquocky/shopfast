@@ -5,9 +5,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import personal.shopfast.dto.response.PageResponse;
 import personal.shopfast.exception.ResourceNotFoundException;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +29,20 @@ public class AbstractController<service> {
     protected <T> ResponseEntity<T> response(Optional<T> serviceOutput) {
         return new ResponseEntity<>(serviceOutput.orElseThrow(() -> new ResourceNotFoundException("Can't found resource")), HttpStatus.OK);
     }
+
+    protected <T> ResponseEntity<PageResponse<T>> responsePage(int page, int size, Optional<T> serviceOutput) {
+        // If serviceOutput is Collection, then return the size of this.
+        int totalElements = (serviceOutput.get() instanceof Collection)
+                ? ((Collection<?>) serviceOutput.get()).size()
+                : 1;
+
+        PageResponse<T> tPageResponse = new PageResponse<>(
+                page, size, totalElements,
+                serviceOutput.orElseThrow(() -> new ResourceNotFoundException("Can't found resource")));
+
+        return new ResponseEntity<>(tPageResponse, HttpStatus.OK);
+    }
+
 
     /**
      * Convert String direction (asc,desc) into object Sort.Direction

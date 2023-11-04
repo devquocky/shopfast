@@ -1,5 +1,6 @@
 package personal.shopfast.exception.handler;
 
+import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -43,4 +44,10 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
         ), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler({PropertyReferenceException.class})
+    public ResponseEntity<ErrorResponse> handlePropertyReferenceException(PropertyReferenceException e) {
+        return new ResponseEntity<>(new ErrorResponse(
+                "000", e.getMessage()
+        ), HttpStatus.BAD_REQUEST);
+    }
 }
