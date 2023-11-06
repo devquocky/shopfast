@@ -1,5 +1,7 @@
 FROM openjdk:11
 
+LABEL authors="flagnguyen"
+
 # Set environment variables
 ENV APP_HOME=/app
 ENV APP_JAR=shopfast-23.26.0.jar

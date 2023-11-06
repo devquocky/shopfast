@@ -16,7 +16,8 @@ services:
   app:
     depends_on:
       - postgresdb
-    build: build/libs/shopfast-23.26.0.jar
+    #    build: build/libs/shopfast-23.26.0.jar
+    image: shopfast:23.11.6
     restart: on-failure
     env_file: ./.env
     ports:
@@ -26,9 +27,14 @@ services:
         "spring.datasource.url"  : "jdbc:postgresql://postgresdb:$POSTGRESDB_DOCKER_PORT/$POSTGRESDB_DATABASE",
         "spring.datasource.username" : "$POSTGRESDB_USER",
         "spring.datasource.password" : "$POSTGRESDB_ROOT_PASSWORD",
+        
+        "spring.datasource.driver-class-name":"org.postgresql.Driver",
         "spring.jpa.properties.hibernate.dialect" : "org.hibernate.dialect.PostgreSQLDialect",
+        "spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation":"true",
+        
         "spring.jpa.hibernate.ddl-auto" : "update"
       }'
+#        "spring.jpa.generate-ddl" : "true",
     volumes:
       - .m2:/root/.m2
     stdin_open: true

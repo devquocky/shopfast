@@ -1,6 +1,7 @@
 package personal.shopfast.dao.entity;
 
 import lombok.*;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import personal.shopfast.util.annotation.PhoneNumber;
 
 import javax.persistence.*;
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 @Getter
 
 @Entity
+@EnableAutoConfiguration
 @Table(name = "customer", schema = "customer")
 public class Customer {
     @Id
