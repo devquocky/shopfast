@@ -6,9 +6,13 @@ public class ObjectMapper {
 
     public static <TSource, TTarget> TTarget map(TSource source, Class<TTarget> targetClass) {
         try {
+            List<Field> sourceFields = new ArrayList<>();
+            for (Class<?> c = source.getClass(); c != null; c = c.getSuperclass()) {
+                sourceFields.addAll(Arrays.asList(c.getDeclaredFields()));
+            }
             TTarget target = targetClass.newInstance();
 
-            for (Field sourceField : source.getClass().getDeclaredFields()) {
+            for (Field sourceField : sourceFields) {
                 try {
                     Field targetField = targetClass.getDeclaredField(sourceField.getName());
 
