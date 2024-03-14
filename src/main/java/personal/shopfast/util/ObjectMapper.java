@@ -1,6 +1,9 @@
 package personal.shopfast.util;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class ObjectMapper {
 
@@ -10,7 +13,7 @@ public class ObjectMapper {
             for (Class<?> c = source.getClass(); c != null; c = c.getSuperclass()) {
                 sourceFields.addAll(Arrays.asList(c.getDeclaredFields()));
             }
-            TTarget target = targetClass.newInstance();
+            TTarget target = targetClass.getDeclaredConstructor().newInstance();
 
             for (Field sourceField : sourceFields) {
                 try {
