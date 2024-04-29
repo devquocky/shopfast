@@ -5,6 +5,9 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import personal.shopfast.util.annotation.PhoneNumber;
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 @Data
@@ -15,14 +18,20 @@ import java.time.LocalDateTime;
 
 @Entity
 @EnableAutoConfiguration
-@Table(name = "customer", schema = "customer")
+@Table(name = "customer",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = "username"),
+                @UniqueConstraint(columnNames = "telephone")
+        })
 public class Customer {
     @Id
     @Column(name = "customer_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int customerId;
+    private Long customerId;
 
-    @Column(name = "username")
+    @NotBlank
+    @Size(max = 50)
+    @Column(name = "username", length = 50)
     private String username;
 
     @Column(name = "password")
