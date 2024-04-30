@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import personal.shopfast.dto.request.CustomerRequest;
@@ -21,6 +22,8 @@ public class CustomerController extends AbstractController<CustomerService> {
     Logger logger = LoggerFactory.getLogger(CustomerController.class);
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<?> getAllCustomer(@RequestParam(name = "page", defaultValue = "0") int page,
                                             @RequestParam(name = "size", defaultValue = "3") int size,
                                             @RequestParam(name = "sort", defaultValue = "customerId,desc") String[] sort) {
@@ -30,12 +33,14 @@ public class CustomerController extends AbstractController<CustomerService> {
                 service.getAllCustomer(PageRequest.of(page, size, sortOption)));
     }
 
-    @GetMapping(path = "/by-id")
-    public ResponseEntity<?> getCustomerById(@RequestParam(name = "id") int customerId) {
+    @GetMapping(path = "/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> getCustomerById(@PathVariable(name = "id") int customerId) {
         return response(service.getCustomerById(customerId));
     }
 
-    @GetMapping(path = "/by-username")
+    @GetMapping(path = "/username")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getCustomersByUsername(@RequestParam(name = "page", defaultValue = "0") int page,
                                                     @RequestParam(name = "size", defaultValue = "3") int size,
                                                     @RequestParam(name = "username")
@@ -47,7 +52,8 @@ public class CustomerController extends AbstractController<CustomerService> {
                 service.getCustomersByUsername(username, PageRequest.of(page, size, sortOption)));
     }
 
-    @GetMapping(path = "/by-phone")
+    @GetMapping(path = "/phone")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getCustomerByPhoneNumber(@RequestParam(name = "page", defaultValue = "0") int page,
                                                       @RequestParam(name = "size", defaultValue = "3") int size,
                                                       @RequestParam(name = "phone")
@@ -61,16 +67,19 @@ public class CustomerController extends AbstractController<CustomerService> {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> addNewCustomer(@Valid @RequestBody CustomerRequest customerRequest) {
         return response(service.addNewCustomer(customerRequest));
     }
 
     @PutMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateCustomerById(@Valid @RequestBody CustomerRequest customerRequest) {
         return response(service.updateCustomer(customerRequest));
     }
 
-    @DeleteMapping(path = "/delete")
+    @DeleteMapping()
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteCustomerById(@RequestParam(name = "username")
                                                 @NotBlank(message = "Param ?username cannot be empty")
                                                 String username) {
