@@ -4,6 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import personal.shopfast.dto.request.LoginRequest;
 import personal.shopfast.dto.request.SignupRequest;
+import personal.shopfast.dto.request.TokenRefreshRequest;
 import personal.shopfast.service.AuthService;
 
 import javax.validation.Valid;
@@ -21,6 +22,11 @@ public class AuthController extends AbstractController<AuthService> {
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
         return ResponseEntity.ok(service.registerUser(signUpRequest));
+    }
+
+    @PostMapping("/token/refresh")
+    public ResponseEntity<?> refreshToken(@Valid @RequestBody TokenRefreshRequest request) {
+        return ResponseEntity.ok(service.refreshToken(request));
     }
 
 }

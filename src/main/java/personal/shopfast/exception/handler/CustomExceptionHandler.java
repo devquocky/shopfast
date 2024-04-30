@@ -9,15 +9,18 @@ import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import personal.shopfast.dto.response.ErrorResponse;
 import personal.shopfast.exception.DuplicateResourceException;
 import personal.shopfast.exception.InvalidRequestException;
 import personal.shopfast.exception.ResourceNotFoundException;
+import personal.shopfast.exception.TokenRefreshException;
 
 import javax.validation.ConstraintViolationException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @ControllerAdvice
@@ -71,5 +74,13 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
         }
 
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(value = TokenRefreshException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ResponseEntity<ErrorResponse> handleTokenRefreshException(TokenRefreshException ex, WebRequest request) {
+        return new ResponseEntity<>(
+                new ErrorResponse(Integer.toString(HttpStatus.FORBIDDEN.value()), ex.getMessage()),
+                HttpStatus.FORBIDDEN);
     }
 }

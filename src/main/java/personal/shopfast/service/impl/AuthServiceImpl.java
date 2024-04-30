@@ -10,18 +10,24 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import personal.shopfast.constant.TokenType;
 import personal.shopfast.dao.entity.ERole;
+import personal.shopfast.dao.entity.RefreshToken;
 import personal.shopfast.dao.entity.Role;
 import personal.shopfast.dao.entity.User;
 import personal.shopfast.dao.repository.RoleRepository;
 import personal.shopfast.dao.repository.UserRepository;
 import personal.shopfast.dto.request.LoginRequest;
 import personal.shopfast.dto.request.SignupRequest;
+import personal.shopfast.dto.request.TokenRefreshRequest;
 import personal.shopfast.dto.response.JwtResponse;
 import personal.shopfast.dto.response.MessageResponse;
+import personal.shopfast.dto.response.TokenRefreshResponse;
 import personal.shopfast.exception.ResourceNotFoundException;
+import personal.shopfast.exception.TokenRefreshException;
 import personal.shopfast.security.JwtUtils;
 import personal.shopfast.service.AuthService;
+import personal.shopfast.service.RefreshTokenService;
 
 import java.util.HashSet;
 import java.util.List;
@@ -39,6 +45,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Autowired
     RoleRepository roleRepository;
+
+    @Autowired
+    RefreshTokenService refreshTokenService;
 
     @Autowired
     PasswordEncoder encoder;
@@ -64,12 +73,35 @@ public class AuthServiceImpl implements AuthService {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
 
-        return new JwtResponse(jwt,
-                userDetails.getId(),
-                userDetails.getUsername(),
-                userDetails.getEmail(),
-                roles);
+        // Generate refreshToken
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
+
+        return JwtResponse.builder()
+                .token(jwt)
+                .refreshToken(refreshToken.getToken())
+                .tokenType(TokenType.BEARER)
+                .id(userDetails.getId())
+                .username(userDetails.getUsername())
+                .email(userDetails.getEmail())
+                .roles(roles)
+                .build();
     }
+
+    @Override
+    public TokenRefreshResponse refreshToken(TokenRefreshRequest request) {
+        String requestRefreshToken = request.getRefreshToken();
+
+        return refreshTokenService.findByToken(requestRefreshToken)
+                .map(refreshTokenService::verifyExpiration)
+                .map(RefreshToken::getUser)
+                .map(user -> {
+                    String token = jwtUtils.generateTokenFromUsername(user.getUsername());
+                    return new TokenRefreshResponse(token, requestRefreshToken);
+                })
+                .orElseThrow(() -> new TokenRefreshException(requestRefreshToken,
+                        "Refresh token is not in database!"));
+    }
+
 
     @Override
     @Transactional
