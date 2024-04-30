@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @EnableAutoConfiguration
-@Table(name = "customer",
+@Table(name = "customers",
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = "username"),
                 @UniqueConstraint(columnNames = "telephone")
