@@ -37,7 +37,7 @@ public class AppConfig {
     @PostConstruct
     void init() {
         TimeZone.setDefault(TimeZone.getTimeZone("Asia/Bangkok"));
-        System.out.println("Date in Asia:" + new Date().toString());
+        System.out.println("Date in Asia:" + new Date());
     }
 
     @Bean

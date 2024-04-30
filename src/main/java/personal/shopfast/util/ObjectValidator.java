@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 import javax.validation.ConstraintViolation;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;

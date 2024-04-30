@@ -18,7 +18,7 @@ public abstract class AbstractService {
     protected ObjectValidator objectValidator;
 
     @PostConstruct
-    public void init(){
-        objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,false);
+    public void init() {
+        objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 }

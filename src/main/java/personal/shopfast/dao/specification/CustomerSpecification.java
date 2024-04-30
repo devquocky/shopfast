@@ -3,10 +3,6 @@ package personal.shopfast.dao.specification;
 import org.springframework.data.jpa.domain.Specification;
 import personal.shopfast.dao.entity.Customer;
 import personal.shopfast.dao.meta.Customer_;
-import personal.shopfast.dto.filter.CustomerFilter;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public final class CustomerSpecification {
 
